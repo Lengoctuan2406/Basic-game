@@ -1,2 +1,3 @@
-# Basic-game-C-
-Create basic game
+hi, guy
+I have gathered and redone the existing code, thank you for watching
+( ^ ^)
