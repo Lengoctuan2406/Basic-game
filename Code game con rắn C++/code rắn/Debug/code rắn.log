@@ -1,0 +1,4 @@
+﻿  Game.cpp
+D:\PC\Programer\Các chương trình đã làm\Code game con rắn C++\code rắn\Game.cpp(140,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\PC\Programer\Các chương trình đã làm\Code game con rắn C++\code rắn\Game.cpp(151): warning C4715: 'Check_lose': not all control paths return a value
+  code rắn.vcxproj -> D:\PC\Programer\Các chương trình đã làm\Code game con rắn C++\Debug\code rắn.exe
