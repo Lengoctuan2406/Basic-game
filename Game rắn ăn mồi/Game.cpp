@@ -1,10 +1,14 @@
-﻿#include<iostream>
-#include<ctime>
+﻿#include<ctime>
+#include<iostream>
 #include"Console.h"
 using namespace std;
+//các vấn đề chưa giải quyết
+// +kiểm tra đầu đụng thân rắn
+// +thức ăn không được hiện trên thân rắn
+
 #define SNAKE_BODY_CHAR 15
 #define SNAKE_HEAD_CHAR 111
-#define MAX 150
+#define MAX 200//độ dài lớn nhất của rắn
 #define FOOD_CHAR 42
 
 //phím di chuyển
@@ -14,16 +18,17 @@ using namespace std;
 #define RIGHT 4
 
 //tọa độ các tường
-#define ON_WALL 2
-#define BELOW_WALL 18
-#define LEFT_WALL 3
-#define RIGHT_WALL 24
+#define ON_WALL 7//tọa độ y trên
+#define BELOW_WALL 23//tọa độ y dưới
+#define LEFT_WALL 3//tọa độ x trái
+#define RIGHT_WALL 24//tọa độ x phải
 
-//tạo tường trên bằng kí hiệu
+//kí hiệu của tường trên game
 #define ON_WALL_CHAR 220
 #define BELOW_WALL_CHAR 223
 #define LEFT_WALL_CHAR 221
 #define RIGHT_WALL_CHAR 222
+
 struct Coordinate {
 	int x, y;
 };
@@ -32,10 +37,12 @@ int score = 0;//điểm ban đầu
 int length = 3;//số lượng đốt rắn ban đầu
 int direction = RIGHT;//hướng đi mặc định
 int speed = 300;//tốc độ ban đầu của rắn
+string name;
 
 void Create_snake();//tạo tọa độ rắn ban đầu
 void Display_snake(Coordinate tail_old);
 
+void Guide();//hướng dẫn cho game
 void Draw_wall();//vẽ tường để rắn chạy và kiểm tra thua khi đụng tường
 
 void Change_direction(int& direction);//thay đổi hướng đi
@@ -49,8 +56,12 @@ void Win();//hàm xuất khi đốt rắn đã đầy, game thắng
 
 bool Check_food(Coordinate food_coordinate);//kiểm tra ăn mồi để thêm đốt
 int Add_tail();//hàm thêm đốt khi đã ăn mồi
+
 int main() {
 	resizeConsole(1000, 500);//sửa đổi khung hình console
+	Guide();
+	gotoXY(LEFT_WALL, ON_WALL - 2);
+	cout << "Name: "; cin >> name;
 	noCursorType();//xóa con trỏ nháy
 	Draw_wall();
 	Create_snake();
@@ -58,24 +69,21 @@ int main() {
 	gotoXY(LEFT_WALL, ON_WALL - 1);
 	cout << "Diem: " << score;
 	while (1) {
-		Coordinate tail_old = Move(direction);
 		Change_direction(direction);
+		Coordinate tail_old = Move(direction);
 		Display_snake(tail_old);
 		if (Check_food(food_coordinate) == true) {
 			food_coordinate = Display_food();
-			if (Add_tail() == MAX + 1) {
-				break;
-			}
+			if (Add_tail() == MAX - 1) { break; }
 			score++;
 			speed--;
 			gotoXY(LEFT_WALL + 6, ON_WALL - 1);
 			cout << score;
 		}
-		if (Check_lose() == true)
-			break;
+		if (Check_lose() == true) { break; }
 		Sleep(speed);
 	}
-	if (length == MAX + 1) Win();
+	if (length == MAX - 1) Win();
 	else Lose();
 	system("pause");
 }
@@ -95,6 +103,13 @@ void Display_snake(Coordinate tail_old) {
 	gotoXY(tail_old.x, tail_old.y);
 	cout << " ";
 }
+void Guide() {
+	cout << "   Huong dan:\n";
+	cout << "   -Di chuyen len xuong qua lai bang dau mui ten hoac cac phim w,a,s,d.\n";
+	cout << "   -Moi khi an moi thi toc do se tang len.\n";
+	cout << "   -khi da dat den muc toi da do dai thi se thang\n";
+	cout << "   -con neu dung tuong hoac dung than thi se thua.\n";
+}
 void Draw_wall() {
 	for (int i = LEFT_WALL; i <= RIGHT_WALL; i++) {
 		gotoXY(i, ON_WALL);
@@ -111,13 +126,13 @@ void Draw_wall() {
 }
 void Change_direction(int& direction) {
 	int Key = inputKey();
-	if (Key == 'w' || Key == 'W' || Key == KEY_UP) direction = UP;
-	else if (Key == 's' || Key == 'S' || Key == KEY_DOWN) direction = DOWN;
-	else if (Key == 'd' || Key == 'D' || Key == KEY_RIGHT) direction = RIGHT;
-	else if (Key == 'a' || Key == 'A' || Key == KEY_LEFT) direction = LEFT;
+	if ((Key == 'w' || Key == 'W' || Key == KEY_UP) && direction != DOWN) direction = UP;
+	else if ((Key == 's' || Key == 'S' || Key == KEY_DOWN) && direction != UP) direction = DOWN;
+	else if ((Key == 'd' || Key == 'D' || Key == KEY_RIGHT) && direction != LEFT) direction = RIGHT;
+	else if ((Key == 'a' || Key == 'A' || Key == KEY_LEFT) && direction != RIGHT) direction = LEFT;
 }
 Coordinate Move(int direction) {
-	Coordinate dotCuoiCu = snake[length - 1];
+	Coordinate tail_old = snake[length - 1];
 	for (int i = length - 1; i >= 1; i--) {
 		snake[i] = snake[i - 1];
 	}
@@ -135,7 +150,7 @@ Coordinate Move(int direction) {
 		snake[0].x++;
 		break;
 	}
-	return dotCuoiCu;
+	return tail_old;
 }
 Coordinate Display_food() {
 	srand(time(NULL));
